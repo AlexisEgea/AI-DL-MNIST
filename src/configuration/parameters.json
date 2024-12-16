@@ -1,0 +1,6 @@
+{
+  "optimiser": "adam",
+  "loss": "categorical_crossentropy",
+  "epoch": 10,
+  "image_size": 28
+}
