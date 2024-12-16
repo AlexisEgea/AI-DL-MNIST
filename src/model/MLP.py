@@ -15,6 +15,8 @@ class MLP:
         self.image_size = None
         self.class_output = None
 
+        self.save_model_path = os.path.join(os.getcwd(), 'configuration/saved_model/mlp.keras')
+
         self.init_parameters()
 
     def init_parameters(self):
@@ -37,18 +39,17 @@ class MLP:
 
 
     def save_model(self):
-        self.model.save(os.path.join(os.getcwd(), 'configuration/saved_model/mlp.keras'))
+        self.model.save(self.save_model_path)
 
     def save_if_model_doesnt_exist(self):
-        model_path = os.path.join(os.getcwd(), 'configuration/saved_model/mlp.keras')
-        if not os.path.exists(model_path):
-            self.model.save(os.path.join(os.getcwd(), 'configuration/saved_model/mlp.keras'))
+        if not os.path.exists(self.save_model_path):
+            self.model.save(self.save_model_path)
             print("model saved")
         else:
             print("model alredy saved")
 
     def load_model(self):
-        self.model = tf.keras.models.load_model(os.path.join(os.getcwd(), 'configuration/saved_model/mlp.keras'))
+        self.model = tf.keras.models.load_model(self.save_model_path)
 
     def train(self, x_train, y_train, x_val, y_val, optimizer, loss):
         if loss == 'categorical_crossentropy':
