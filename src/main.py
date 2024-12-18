@@ -3,8 +3,8 @@ from src.model.CNN import CNN
 from src.ui.draw_digit_ui import DrawDigitUI
 
 if __name__ == '__main__':
-    model = MLP()
-    # model = CNN()
+    # model = MLP()
+    model = CNN()
     model.load_model()
     print(model.model.summary())
 
