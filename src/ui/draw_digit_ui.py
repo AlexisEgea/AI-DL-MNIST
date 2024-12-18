@@ -25,19 +25,24 @@ class DrawDigitUI:
         img = Image.open('digit.ps')
         img = img.convert('L')
         img = ImageOps.invert(img)
-        img = img.resize((28, 28))
+        img = img.resize((model.height, model.width))
 
         img = np.array(img)
-        img = img.astype('float32')
-        img = img / 255.0
+        img = img.astype('float32') / 255.0
+
+        if model.name == "CNN":
+            img = img.reshape(1, model.height, model.width, 1)
+
 
         plt.imshow(img.squeeze(), cmap='gray')
         plt.axis('off')
         plt.show(block=False)
 
         result = model.predict(img)
-        print(result[0])
         digit, prob = model.predict_best_class(result)
+
+        print(f"image: {img.shape}")
+        print(result[0])
         print(f"{digit} -> {prob}%")
 
         self.label_result['text'] = ""
