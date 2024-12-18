@@ -1,6 +1,19 @@
 {
-  "optimiser": "adam",
-  "loss": "categorical_crossentropy",
-  "epoch": 10,
-  "image_size": 28
+  "model": {
+    "MLP": {
+      "optimiser": "adam",
+      "loss": "categorical_crossentropy",
+      "epoch": 10
+    },
+    "CNN": {
+      "optimiser": "SGD",
+      "loss": "categorical_crossentropy",
+      "epoch": 10
+    }
+  },
+
+  "image": {
+    "height": 28,
+    "width": 28
+  }
 }
