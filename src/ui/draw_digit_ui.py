@@ -28,11 +28,11 @@ class DrawDigitUI:
         img = img.resize((model.height, model.width))
 
         img = np.array(img)
-        img = img.astype('float32') / 255.0
 
         if model.name == "CNN":
             img = img.reshape(1, model.height, model.width, 1)
 
+        img = img.astype('float32') / 255
 
         plt.imshow(img.squeeze(), cmap='gray')
         plt.axis('off')
