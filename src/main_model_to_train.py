@@ -3,7 +3,8 @@ import tensorflow as tf
 from matplotlib import pyplot as plt
 
 from src.ui.draw_digit_ui import DrawDigitUI
-from src.utils.data import preprocess_data_mlp, preprocess_data_cnn, get_class_output
+from src.utils.data import preprocess_data_mlp, preprocess_data_cnn, get_class_output, display_dataset_shape, \
+    display_dataset
 from src.model.MLP import MLP
 from model.CNN import CNN
 
@@ -21,6 +22,9 @@ if __name__ == '__main__':
         x_train, y_train, x_val, y_val = preprocess_data_mlp(x_train, y_train, x_val, y_val)
     elif model.name == "CNN":
         x_train, y_train, x_val, y_val = preprocess_data_cnn(x_train, y_train, x_val, y_val)
+
+    # To see the entire dataset images, uncomment this lines
+    # display_dataset(x_train, y_train)
 
     # init the model
     class_output = get_class_output(y_train) # same if we use y_val
