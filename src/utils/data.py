@@ -15,11 +15,37 @@ def get_image_size():
         data = json.load(file)
     return data['image']['height'] , data['image']['width']
 
-def preprocess_data_mlp(x_train, y_train, x_val, y_val):
+
+def preprocess_data(x_train, y_train, x_val, y_val, model_name="MLP", augmentation=True):
+    """
+    Preprocess the dataset for either MLP or CNN models.
+
+    Parameters:
+    - x_train: Training input data
+    - y_train: Training labels
+    - x_val: Validation input data
+    - y_val: Validation labels
+    - model_type: "mlp" for Multi-Layer Perceptron, "cnn" for Convolutional Neural Network
+
+    Returns:
+    - Processed x_train, y_train, x_val, y_val
+    """
     height, width = get_image_size()
 
-    x_train = x_train.reshape(len(x_train), height*width)
-    x_val = x_val.reshape(len(x_val), height*width)
+    if model_name == "MLP":
+        x_train = x_train.reshape(len(x_train), height * width)
+        x_val = x_val.reshape(len(x_val), height * width)
+    elif model_name == "CNN":
+        x_train = x_train.reshape(len(x_train), height, width, 1)  # 1 channel for grayscale
+        x_val = x_val.reshape(len(x_val), height, width, 1)
+    else:
+        raise ValueError(f"Invalid model_type '{model_name}'. Choose 'mlp' or 'cnn'.")
+
+    if augmentation:
+        # Uncomment if dataset reduction is needed
+        # x_train, y_train = reduce_dataset(x_train, y_train)
+        x_train, y_train = augment_dataset(x_train, y_train)
+        x_val, y_val = augment_dataset(x_val, y_val)
 
     x_train = x_train.astype('float32') / 255
     x_val = x_val.astype('float32') / 255
@@ -28,21 +54,6 @@ def preprocess_data_mlp(x_train, y_train, x_val, y_val):
 
     return x_train, y_train, x_val, y_val
 
-def preprocess_data_cnn(x_train, y_train, x_val, y_val):
-    height, width = get_image_size()
-
-    x_train = x_train.reshape(len(x_train), height, width, 1)  # 1 canal, not RGB
-    x_val = x_val.reshape(len(x_val), height, width, 1)
-
-    x_train, y_train = reduce_dataset(x_train, y_train)
-    x_train, y_train = augment_dataset(x_train, y_train)
-
-    x_train = x_train.astype('float32') / 255
-    x_val = x_val.astype('float32') / 255
-
-    display_dataset_shape(x_train, y_train, x_val, y_val)
-
-    return x_train, y_train, x_val, y_val
 
 def reduce_dataset(x_train, y_train):
     x_train_sample = []
@@ -69,8 +80,15 @@ def augment_dataset(x_train, y_train):
     zoom_factors = [0.25, 0.5, 0.75]
     j = 0
     for image, label in zip(x_train, y_train):
-        # Shift
-        # TODO: Add method to shift an image in 4 image corners
+        # Corner Shift
+        x_dataset_shift.append(corner_shift(image, "top_left"))
+        y_dataset_shift.append(label)
+        x_dataset_shift.append(corner_shift(image, "top_right"))
+        y_dataset_shift.append(label)
+        x_dataset_shift.append(corner_shift(image, "bottom_left"))
+        y_dataset_shift.append(label)
+        x_dataset_shift.append(corner_shift(image, "bottom_right"))
+        y_dataset_shift.append(label)
 
         # Random Shift
         for i in range(20):
@@ -97,14 +115,30 @@ def augment_dataset(x_train, y_train):
 
     return x_train, y_train
 
-# TODO: Add a method to add texture
-#         image = tf.image.adjust_brightness()
-#         image2 = tf.image.adjust_hue()
-#         image3 = tf.image.adjust_gamma()
-#         image4 = tf.image.adjust_contrast()
-#         image5 = tf.image.adjust_saturation()
-#         image6 = tf.image.adjust_brightness()
-#         image7 = tf.image.adjust_jpeg_quality()
+
+def corner_shift(image, corner):
+    height, width, _ = image.shape
+
+    zoom_factor = 0.5
+    zoom_height = int(height * zoom_factor)
+    zoom_width = int(width * zoom_factor)
+    # Get zoomed image to apply the  random shift
+    zoomed_image = tf.image.resize(image, (zoom_height, zoom_width))
+
+    if corner == 'top_left':
+        offset_x, offset_y = 0, 0
+    elif corner == 'top_right':
+        offset_x, offset_y = width - zoom_width, 0
+    elif corner == 'bottom_left':
+        offset_x, offset_y = 0, height - zoom_height
+    elif corner == 'bottom_right':
+        offset_x, offset_y = width - zoom_width, height - zoom_height
+
+    # Create the new image with shift
+    shifted_image = tf.image.pad_to_bounding_box(zoomed_image, offset_y, offset_x, height, width)
+
+    return shifted_image
+
 
 def random_shift(image):
     height, width, _ = image.shape
@@ -122,6 +156,7 @@ def random_shift(image):
     # Create the new image with shift
     return tf.image.pad_to_bounding_box(zoomed_image, offset_y, offset_x, height, width)
 
+
 def zoom(image, zoom):
     height, width, _ = image.shape
 
@@ -132,6 +167,16 @@ def zoom(image, zoom):
     return tf.image.resize_with_crop_or_pad(zoomed_image, height, width)
 
 
+# TODO: Add a method to add texture, can be upgrade the dataset ?
+#         image = tf.image.adjust_brightness()
+#         image2 = tf.image.adjust_hue()
+#         image3 = tf.image.adjust_gamma()
+#         image4 = tf.image.adjust_contrast()
+#         image5 = tf.image.adjust_saturation()
+#         image6 = tf.image.adjust_brightness()
+#         image7 = tf.image.adjust_jpeg_quality()
+
+
 def display_dataset_shape(x_train, y_train, x_val, y_val):
     print('train samples', x_train.shape)
     print('validation samples', x_val.shape)
@@ -140,20 +185,33 @@ def display_dataset_shape(x_train, y_train, x_val, y_val):
 
 def display_dataset(x_dataset, y_dataset):
     num_images = x_dataset.shape[0]
-    batch_size = 100
-    num_batches = num_images // batch_size
+    x = 15
+    y = 15
+    batch_size = x * y
+    num_batches = (num_images + batch_size - 1) // batch_size
+    if num_batches == 0 and num_images > 0:
+        num_batches = 1
 
     for batch_index in range(num_batches):
         start_index = batch_index * batch_size
-        end_index = start_index + batch_size
+        end_index = min(start_index + batch_size, num_images)
+        print(f"Batch {batch_index + 1}/{num_batches}: {end_index}")
+
         current_images = x_dataset[start_index:end_index]
         current_labels = y_dataset[start_index:end_index]
 
-        fig, axes = plt.subplots(10, 10, figsize=(15, 15))
-        for i, ax in enumerate(axes.flat):
-            ax.imshow(current_images[i], cmap='gray')
-            ax.axis('off')
-            ax.set_title(f"Label: {current_labels[i]}")
+        num_current_images = current_images.shape[0]
+
+        fig, axes = plt.subplots(x, y, figsize=(20, 20))
+        axes = axes.flat
+
+        for i, ax in enumerate(axes):
+            if i < num_current_images:  # Assurez-vous que i est dans les limites
+                ax.imshow(current_images[i], cmap='gray')
+                ax.axis('off')
+                ax.set_title(f"Label: {current_labels[i]}")
+            else:
+                ax.axis('off')
 
         plt.tight_layout()
         plt.show()
