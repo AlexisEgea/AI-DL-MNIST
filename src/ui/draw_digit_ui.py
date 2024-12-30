@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 import numpy as np
 from PIL import Image, ImageOps
@@ -20,9 +21,9 @@ class DrawDigitUI:
 
     def predict_digit(self, model):
         self.canvas.update()
-        self.canvas.postscript(colormode='mono', file='digit.ps')
+        self.canvas.postscript(colormode='mono', file='tmp.ps')
 
-        img = Image.open('digit.ps')
+        img = Image.open('tmp.ps')
         img = img.convert('L')
         img = ImageOps.invert(img)
         img = img.resize((model.height, model.width))
@@ -49,6 +50,8 @@ class DrawDigitUI:
         probabilities = result[0]
         for i in range(len(probabilities)):
             self.label_result['text'] += f"{str(i).ljust(2)}: {probabilities[i] * 100:6.2f}%\n"
+
+        os.remove(os.path.join(os.getcwd(), "tmp.ps"))
 
     def build_ui(self, model):
         self.canvas = tk.Canvas(self.root, width=200, height=200, bg='white')
