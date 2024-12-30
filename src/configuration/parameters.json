@@ -12,6 +12,10 @@
     }
   },
 
+  "dataset": {
+    "name": "mnist_0"
+  },
+
   "image": {
     "height": 28,
     "width": 28
