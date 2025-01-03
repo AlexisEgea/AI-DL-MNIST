@@ -2,6 +2,7 @@ import os
 import tensorflow as tf
 from src.model.model import Model
 
+# TODO: Depreciated: See old commit to understand how to use this model
 class MLP(Model):
     def __init__(self):
         super().__init__("MLP")

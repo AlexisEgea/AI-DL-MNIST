@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
 from src.utils.processing_data import preprocess_data, get_class_output, display_dataset
-from src.model.MLP import MLP
 from model.CNN import CNN
 
 from src.ui.draw_digit_ui import DrawDigitUI
@@ -28,21 +27,15 @@ if __name__ == '__main__':
     # To see the dataset images before augmentation, uncomment this lines
     #display_dataset(x_data_loaded, y_data_loaded)
 
-    x_train, x_val, y_train, y_val = train_test_split(x_data_loaded, y_data_loaded, test_size=0.2)    # pre process data
-
-    # model = MLP()
-    model = CNN()
-
-    if model.name == "MLP":
-        x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val, "MLP", False)
-    elif model.name == "CNN":
-        x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val,"CNN")
+    x_train, x_val, y_train, y_val = train_test_split(x_data_loaded, y_data_loaded, test_size=0.2)
+    x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val)
 
     # To see the entire dataset images after augmentation, uncomment this lines
     #display_dataset(x_train, y_train)
 
     # init the model
     class_output = get_class_output(y_train) # same if we use y_val
+    model = CNN()
     model.init_model(class_output)
 
     # train
