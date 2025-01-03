@@ -17,19 +17,6 @@ def get_image_size():
 
 
 def preprocess_data(x_train, y_train, x_val, y_val, model_name="MLP", augmentation=True):
-    """
-    Preprocess the dataset for either MLP or CNN models.
-
-    Parameters:
-    - x_train: Training input data
-    - y_train: Training labels
-    - x_val: Validation input data
-    - y_val: Validation labels
-    - model_type: "mlp" for Multi-Layer Perceptron, "cnn" for Convolutional Neural Network
-
-    Returns:
-    - Processed x_train, y_train, x_val, y_val
-    """
     height, width = get_image_size()
 
     if model_name == "MLP":
@@ -80,6 +67,8 @@ def augment_dataset(x_train, y_train):
     zoom_factors = [0.25, 0.5, 0.75]
     j = 0
     for image, label in zip(x_train, y_train):
+        j += 1
+
         # Corner Shift
         x_dataset_shift.append(corner_shift(image, "top_left"))
         y_dataset_shift.append(label)
@@ -90,11 +79,15 @@ def augment_dataset(x_train, y_train):
         x_dataset_shift.append(corner_shift(image, "bottom_right"))
         y_dataset_shift.append(label)
 
+        print(f"image {j} ...corner shift applied")
+
         # Random Shift
         for i in range(20):
             shifted_image = random_shift(image)
             x_dataset_shift.append(shifted_image)
             y_dataset_shift.append(label)
+
+        print(f"image {j} ...random shift applied")
 
         # Zoom
         for zoom_factor in zoom_factors:
@@ -102,8 +95,8 @@ def augment_dataset(x_train, y_train):
             x_dataset_zoom.append(zoomed_image)
             y_dataset_zoom.append(label)
 
-        print(f"image {j} ...augmented")
-        j += 1
+        print(f"image {j} ...zoom applied")
+
     # Tranform the shift and zoom dataset in np.array
     x_dataset_shift = np.array(x_dataset_shift)
     y_dataset_shift = np.array(y_dataset_shift)
@@ -112,6 +105,8 @@ def augment_dataset(x_train, y_train):
     # Concatenate all the dataset in one
     x_train = np.concatenate((x_train, x_dataset_shift, x_dataset_zoom), axis=0)
     y_train = np.concatenate((y_train, y_dataset_shift, y_dataset_zoom), axis=0)
+
+    x_train, y_train = rotate_images(x_train, y_train)
 
     return x_train, y_train
 
@@ -165,6 +160,45 @@ def zoom(image, zoom):
     zoomed_image = tf.image.resize(image, (zoom_height, zoom_width))
     # return image with the zoom
     return tf.image.resize_with_crop_or_pad(zoomed_image, height, width)
+
+def rotate_images(x_train, y_train, min_angle=-30, max_angle=30):
+    x_rotated = []
+    y_rotated = []
+
+    j = 0
+    for image, label in zip(x_train, y_train):
+        for i in range(10):
+            # Generate a random angle between min_angle and max_angle
+            angle = random.uniform(min_angle, max_angle)
+
+            rotated_image = rotate_image(image, angle)
+
+            x_rotated.append(rotated_image)
+            y_rotated.append(label)
+
+        j+=1
+        print(f"image {j} ...rotation applied")
+
+    # Convert the rotated datasets to numpy arrays
+    x_rotated = np.array(x_rotated)
+    y_rotated = np.array(y_rotated)
+
+    x_train = np.concatenate((x_train, x_rotated), axis=0)
+    y_train = np.concatenate((y_train, y_rotated), axis=0)
+
+    return x_train, y_train
+
+
+def rotate_image(image, angle):
+    # Convert angle from degrees to a fraction of a full rotation (1.0 represents 360 degrees)
+    rotation_factor = angle / 360.0
+
+    # Define the RandomRotation layer
+    random_rotation_layer = tf.keras.layers.RandomRotation(factor=(rotation_factor, rotation_factor))
+
+    # Apply the rotation
+    rotated_image = random_rotation_layer(image)
+    return rotated_image
 
 
 # TODO: Add a method to add texture, can be upgrade the dataset ?
