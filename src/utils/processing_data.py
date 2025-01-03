@@ -16,24 +16,23 @@ def get_image_size():
     return data['image']['height'] , data['image']['width']
 
 
-def preprocess_data(x_train, y_train, x_val, y_val, model_name, augmentation=True):
+def preprocess_data(x_train, y_train, x_val, y_val, model_name="CNN", reduction=False):
     height, width = get_image_size()
 
-    if model_name == "MLP":
-        x_train = x_train.reshape(len(x_train), height * width)
-        x_val = x_val.reshape(len(x_val), height * width)
-    elif model_name == "CNN":
+    if model_name == "CNN":
         x_train = x_train.reshape(len(x_train), height, width, 1)  # 1 channel for grayscale
         x_val = x_val.reshape(len(x_val), height, width, 1)
     else:
-        raise ValueError(f"Invalid model_type '{model_name}'. Choose 'mlp' or 'cnn'.")
+        raise ValueError(f"Invalid model_type '{model_name}'. 'CNN' model supported.")
 
-    # Uncomment if dataset reduction is needed
-    # x_train, y_train = reduce_dataset(x_train, y_train)
+    if reduction:
+        x_train, y_train = reduce_dataset(x_train, y_train, 10)
+        x_val, y_val = reduce_dataset(x_val, y_val, 5)
+        display_dataset_shape(x_train, y_train, x_val, y_val)
+        print("reduction ...applied")
 
-    if augmentation:
-        x_train, y_train = augment_dataset(x_train, y_train)
-        x_val, y_val = augment_dataset(x_val, y_val)
+    x_train, y_train = augment_dataset(x_train, y_train)
+    x_val, y_val = augment_dataset(x_val, y_val)
 
     x_train = x_train.astype('float32') / 255
     x_val = x_val.astype('float32') / 255
@@ -43,10 +42,9 @@ def preprocess_data(x_train, y_train, x_val, y_val, model_name, augmentation=Tru
     return x_train, y_train, x_val, y_val
 
 
-def reduce_dataset(x_train, y_train):
+def reduce_dataset(x_train, y_train, num_image_per_class):
     x_train_sample = []
     y_train_sample = []
-    num_image_per_class = 50
     class_output = get_class_output(y_train)
     # Select "num_image_per_class" random images for each class
     for i in range(class_output):
