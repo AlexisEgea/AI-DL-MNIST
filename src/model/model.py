@@ -27,13 +27,16 @@ class Model(ABC):
     def init_model(self, class_output):
         pass
 
+
     @abstractmethod
     def train(self, x_train, y_train, x_val, y_val, optimizer, loss):
         pass
 
+
     @abstractmethod
     def predict(self, image):
         pass
+
 
     def init_parameters(self):
         parameters_path = os.path.join(os.getcwd(), 'configuration/parameters.json')
@@ -48,6 +51,7 @@ class Model(ABC):
 
     def save_model(self):
         self.model.save(self.save_model_path)
+        print("model saved")
 
 
     def save_if_model_doesnt_exist(self):

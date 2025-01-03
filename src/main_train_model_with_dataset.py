@@ -6,7 +6,7 @@ import cv2
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
-from src.utils.data import preprocess_data, get_class_output, display_dataset
+from src.utils.processing_data import preprocess_data, get_class_output, display_dataset
 from src.model.MLP import MLP
 from model.CNN import CNN
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     model = CNN()
 
     if model.name == "MLP":
-        x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val)
+        x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val, "MLP", False)
     elif model.name == "CNN":
         x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val,"CNN")
 

@@ -5,7 +5,7 @@ import tensorflow as tf
 import cv2
 from matplotlib import pyplot as plt
 
-from src.utils.data import preprocess_data, get_class_output, display_dataset
+from src.utils.processing_data import preprocess_data, get_class_output, display_dataset
 from src.model.MLP import MLP
 from model.CNN import CNN
 
@@ -30,9 +30,9 @@ if __name__ == '__main__':
     model = CNN()
 
     if model.name == "MLP":
-        x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val, augmentation=False)
+        x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val, "MLP", False)
     elif model.name == "CNN":
-        x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val,"CNN", augmentation=False)
+        x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val,"CNN", False)
 
     # To see the entire dataset images after augmentation, uncomment this lines
     #display_dataset(x_train, y_train)
@@ -63,9 +63,9 @@ if __name__ == '__main__':
     ui.run()
 
     # save model if it doesn't exist
-    # model.save_if_model_doesnt_exist()
+    model.save_if_model_doesnt_exist()
     # or save the model even if it exists
-    model.save_model()
+    # model.save_model()
 
 
 
