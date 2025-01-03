@@ -16,7 +16,7 @@ def get_image_size():
     return data['image']['height'] , data['image']['width']
 
 
-def preprocess_data(x_train, y_train, x_val, y_val, model_name="MLP", augmentation=True):
+def preprocess_data(x_train, y_train, x_val, y_val, model_name, augmentation=True):
     height, width = get_image_size()
 
     if model_name == "MLP":
@@ -28,9 +28,10 @@ def preprocess_data(x_train, y_train, x_val, y_val, model_name="MLP", augmentati
     else:
         raise ValueError(f"Invalid model_type '{model_name}'. Choose 'mlp' or 'cnn'.")
 
+    # Uncomment if dataset reduction is needed
+    # x_train, y_train = reduce_dataset(x_train, y_train)
+
     if augmentation:
-        # Uncomment if dataset reduction is needed
-        # x_train, y_train = reduce_dataset(x_train, y_train)
         x_train, y_train = augment_dataset(x_train, y_train)
         x_val, y_val = augment_dataset(x_val, y_val)
 
@@ -68,7 +69,6 @@ def augment_dataset(x_train, y_train):
     j = 0
     for image, label in zip(x_train, y_train):
         j += 1
-
         # Corner Shift
         x_dataset_shift.append(corner_shift(image, "top_left"))
         y_dataset_shift.append(label)
