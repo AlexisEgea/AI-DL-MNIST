@@ -6,14 +6,13 @@ from matplotlib import pyplot as plt
 
 class DrawDigitUI:
     def __init__(self):
-
         self.root = tk.Tk()
         self.canvas = tk.Canvas()
-        self.label_result = {"text": ""}
+        self.prob_digit = {"text": ""}
 
     def clear(self):
         self.canvas.delete("all")
-        self.label_result['text'] = ""
+        self.prob_digit['text'] = ""
 
     def draw(self, event):
         x, y = event.x, event.y
@@ -22,23 +21,22 @@ class DrawDigitUI:
     def predict_digit(self, model):
         self.canvas.update()
         self.canvas.postscript(colormode='mono', file='tmp.ps')
-
+        # Get image
         img = Image.open('tmp.ps')
         img = img.convert('L')
         img = ImageOps.invert(img)
         img = img.resize((model.height, model.width))
 
         img = np.array(img)
-
+        # Preprocess image
         if model.name == "CNN":
             img = img.reshape(1, model.height, model.width, 1)
-
         img = img.astype('float32') / 255
-
+        # Display image
         plt.imshow(img.squeeze(), cmap='gray')
         plt.axis('off')
         plt.show(block=False)
-
+        # Predict digit
         result = model.predict(img)
         digit, prob = model.predict_best_class(result)
 
@@ -46,10 +44,10 @@ class DrawDigitUI:
         print(result[0])
         print(f"{digit} -> {prob}%")
 
-        self.label_result['text'] = ""
+        self.prob_digit['text'] = ""
         probabilities = result[0]
         for i in range(len(probabilities)):
-            self.label_result['text'] += f"{str(i).ljust(2)}: {probabilities[i] * 100:6.2f}%\n"
+            self.prob_digit['text'] += f"{str(i).ljust(2)}: {probabilities[i] * 100:6.2f}%\n"
 
         os.remove(os.path.join(os.getcwd(), "tmp.ps"))
 
@@ -63,8 +61,8 @@ class DrawDigitUI:
         button_clear = tk.Button(self.root, text="Clear", command=self.clear, font=("Arial", 20))
         button_clear.pack()
 
-        self.label_result = tk.Label(self.root, text="", font=("Arial", 20), justify="left")
-        self.label_result.pack()
+        self.prob_digit = tk.Label(self.root, text="", font=("Arial", 20), justify="left")
+        self.prob_digit.pack()
 
 
     def run(self):
