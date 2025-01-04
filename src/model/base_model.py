@@ -1,10 +1,10 @@
 import os
 import json
+from abc import ABC, abstractmethod
 
 import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
-from abc import ABC, abstractmethod
 
 
 class Model(ABC):
@@ -18,7 +18,7 @@ class Model(ABC):
         self.width = None
         self.class_output = None
 
-        self.save_model_path = ""
+        self.save_model_path = ''
 
         self.init_parameters()
 
@@ -51,15 +51,15 @@ class Model(ABC):
 
     def save_model(self):
         self.model.save(self.save_model_path)
-        print("model saved")
+        print('model saved')
 
 
     def save_if_model_doesnt_exist(self):
         if not os.path.exists(self.save_model_path):
             self.model.save(self.save_model_path)
-            print("model saved")
+            print('model saved')
         else:
-            print("model alredy saved")
+            print('model alredy saved')
 
 
     def load_model(self):
