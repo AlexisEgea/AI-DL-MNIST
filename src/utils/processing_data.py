@@ -6,8 +6,10 @@ import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
 
+
 def get_class_output(y):
     return len(np.unique(y))
+
 
 def get_image_size():
     parameters_path = os.path.join(os.getcwd(), 'configuration/parameters.json')
@@ -16,7 +18,7 @@ def get_image_size():
     return data['image']['height'] , data['image']['width']
 
 
-def preprocess_data(x_train, y_train, x_val, y_val, model_name="CNN", reduction=False):
+def preprocess_data(x_train, y_train, x_val, y_val, model_name="CNN", augmentation=True, reduction=False):
     height, width = get_image_size()
 
     if model_name == "CNN":
@@ -25,14 +27,16 @@ def preprocess_data(x_train, y_train, x_val, y_val, model_name="CNN", reduction=
     else:
         raise ValueError(f"Invalid model_type '{model_name}'. 'CNN' model supported.")
 
+    # This condition is used when the dataset (obtained from other source) is too large to apply augmentation or to be used
     if reduction:
         x_train, y_train = reduce_dataset(x_train, y_train, 10)
         x_val, y_val = reduce_dataset(x_val, y_val, 5)
         display_dataset_shape(x_train, y_train, x_val, y_val)
         print("reduction ...applied")
-
-    x_train, y_train = augment_dataset(x_train, y_train)
-    x_val, y_val = augment_dataset(x_val, y_val)
+    # This condition is used when the dataset needs augmentation to create a more complex dataset (with zoom, shift and rotation)
+    if augmentation:
+        x_train, y_train = augment_dataset(x_train, y_train)
+        x_val, y_val = augment_dataset(x_val, y_val)
 
     x_train = x_train.astype('float32') / 255
     x_val = x_val.astype('float32') / 255
@@ -57,6 +61,7 @@ def reduce_dataset(x_train, y_train, num_image_per_class):
     y_train_sample = np.concatenate(y_train_sample, axis=0)
     return x_train_sample, y_train_sample
 
+
 def augment_dataset(x_train, y_train):
     x_dataset_shift = []
     y_dataset_shift = []
@@ -76,7 +81,6 @@ def augment_dataset(x_train, y_train):
         y_dataset_shift.append(label)
         x_dataset_shift.append(corner_shift(image, "bottom_right"))
         y_dataset_shift.append(label)
-
         print(f"image {j} ...corner shift applied")
 
         # Random Shift
@@ -84,7 +88,6 @@ def augment_dataset(x_train, y_train):
             shifted_image = random_shift(image)
             x_dataset_shift.append(shifted_image)
             y_dataset_shift.append(label)
-
         print(f"image {j} ...random shift applied")
 
         # Zoom
@@ -92,7 +95,6 @@ def augment_dataset(x_train, y_train):
             zoomed_image = zoom(image, zoom_factor)
             x_dataset_zoom.append(zoomed_image)
             y_dataset_zoom.append(label)
-
         print(f"image {j} ...zoom applied")
 
     # Tranform the shift and zoom dataset in np.array
@@ -159,16 +161,17 @@ def zoom(image, zoom):
     # return image with the zoom
     return tf.image.resize_with_crop_or_pad(zoomed_image, height, width)
 
+
 def rotate_images(x_train, y_train, min_angle=-30, max_angle=30):
     x_rotated = []
     y_rotated = []
-
+    # j -> only for debug purpose
     j = 0
     for image, label in zip(x_train, y_train):
         for i in range(10):
             # Generate a random angle between min_angle and max_angle
             angle = random.uniform(min_angle, max_angle)
-
+            # Apply the rotation
             rotated_image = rotate_image(image, angle)
 
             x_rotated.append(rotated_image)
@@ -190,10 +193,8 @@ def rotate_images(x_train, y_train, min_angle=-30, max_angle=30):
 def rotate_image(image, angle):
     # Convert angle from degrees to a fraction of a full rotation (1.0 represents 360 degrees)
     rotation_factor = angle / 360.0
-
     # Define the RandomRotation layer
     random_rotation_layer = tf.keras.layers.RandomRotation(factor=(rotation_factor, rotation_factor))
-
     # Apply the rotation
     rotated_image = random_rotation_layer(image)
     return rotated_image
@@ -214,6 +215,7 @@ def display_dataset_shape(x_train, y_train, x_val, y_val):
     print('validation samples', x_val.shape)
     print('train label samples', y_train.shape)
     print('validation label samples', y_val.shape)
+
 
 def display_dataset(x_dataset, y_dataset):
     num_images = x_dataset.shape[0]
@@ -238,7 +240,7 @@ def display_dataset(x_dataset, y_dataset):
         axes = axes.flat
 
         for i, ax in enumerate(axes):
-            if i < num_current_images:  # Assurez-vous que i est dans les limites
+            if i < num_current_images:
                 ax.imshow(current_images[i], cmap='gray')
                 ax.axis('off')
                 ax.set_title(f"Label: {current_labels[i]}")

@@ -2,18 +2,21 @@ import os
 import re
 
 import tkinter as tk
-import numpy as np
 from PIL import Image, ImageOps
+
+import numpy as np
 from matplotlib import pyplot as plt
+from utils.processing_data import get_image_size
+
 
 class CreateDatasetUI:
     def __init__(self, n_class, number_of_draw):
         self.root = tk.Tk()
         self.canvas = tk.Canvas()
 
-        self.goal = {"text": ""}
+        self.digit_goal = {"text": ""}
 
-        self.image_count = 0
+        self.height, self.width = get_image_size()
 
         self.class_output = self.get_number_to_draw(n_class)
         self.class_number = self.class_output.pop(0)
@@ -27,6 +30,7 @@ class CreateDatasetUI:
         self.path_dataset = None
         self.create_dataset()
 
+
     def create_dataset(self):
         self.path_dataset = os.path.join(os.getcwd(), "..", "data")
         self.dataset_name = f"mnist_{self.get_number_dataset(self.path_dataset)}"
@@ -39,6 +43,7 @@ class CreateDatasetUI:
 
         print(f"'{self.dataset_name}' created.")
 
+    # Return the name of the dataset "mnist_n+1" available
     def get_number_dataset(self, base_path):
         directories = [d for d in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, d))]
         numbers = []
@@ -51,17 +56,21 @@ class CreateDatasetUI:
             return 0
         return max(numbers) + 1
 
+    # Return a table with all the class to draw
     def get_number_to_draw(self, number):
         array = []
         for i in range(number):
             array.append(i)
         return array
 
-    def update_goal(self):
-        self.goal['text'] = f"Draw {self.class_number} - Goal {self.number_of_draw_counter}/{self.number_of_draw}"
+
+    def update_digit_to_draw(self):
+        self.digit_goal['text'] = f"Draw {self.class_number} - Goal {self.number_of_draw_counter}/{self.number_of_draw}"
+
 
     def clear(self):
         self.canvas.delete("all")
+
 
     def save(self):
         self.canvas.update()
@@ -71,8 +80,7 @@ class CreateDatasetUI:
         img = Image.open('tmp.ps')
         img = img.convert('L')
         img = ImageOps.invert(img)
-        # TODO: remove this number and use the parameters.json file
-        img = img.resize((28, 28))
+        img = img.resize((self.height, self.width))
 
         # Save the image with a unique name
         filename = f"digit_{self.class_number}_{self.number_of_draw_counter}.png"
@@ -81,8 +89,6 @@ class CreateDatasetUI:
         self.x_data.append(img)
         self.y_label.append(self.class_number)
         print(self.y_label)
-
-        self.image_count += 1
         print(f"Image saved as {filename}")
 
         self.number_of_draw_counter+=1
@@ -95,7 +101,7 @@ class CreateDatasetUI:
               exit()
             self.number_of_draw_counter = 0
             self.class_number = self.class_output.pop(0)
-        self.update_goal()
+        self.update_digit_to_draw()
 
         self.clear()
         os.remove(os.path.join(os.getcwd(), "tmp.ps"))
@@ -105,10 +111,11 @@ class CreateDatasetUI:
         x, y = event.x, event.y
         self.canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill='black', width=5)
 
+
     def display_result(self):
         self.canvas.update()
-        self.canvas.postscript(colormode='mono', file='digit.ps')
-        img = Image.open('digit.ps')
+        self.canvas.postscript(colormode='mono', file='tmp.ps')
+        img = Image.open('tmp.ps')
         img = img.convert('L')
         img = ImageOps.invert(img)
         img = img.resize((28, 28))
@@ -117,12 +124,13 @@ class CreateDatasetUI:
         plt.axis('off')
         plt.show(block=False)
 
+        os.remove(os.path.join(os.getcwd(), "tmp.ps"))
+
+
     def build_ui(self):
-
-
-        self.update_goal()
-        self.goal = tk.Label(self.root, text=self.goal['text'], font=("Arial", 20), justify="left")
-        self.goal.pack()
+        self.update_digit_to_draw()
+        self.digit_goal = tk.Label(self.root, text=self.digit_goal['text'], font=("Arial", 20), justify="left")
+        self.digit_goal.pack()
 
         self.canvas = tk.Canvas(self.root, width=200, height=200, bg='white')
         self.canvas.pack()
@@ -142,6 +150,6 @@ class CreateDatasetUI:
 
 if __name__ == '__main__':
 
-    ui = CreateDatasetUI(10, 15)
+    ui = CreateDatasetUI(10, 10)
     ui.build_ui()
     ui.run()

@@ -1,6 +1,6 @@
 import os
 import tensorflow as tf
-from src.model.model import Model
+from model.base_model import Model
 
 class CNN(Model):
     def __init__(self):
@@ -16,7 +16,6 @@ class CNN(Model):
         self.model.add(tf.keras.layers.Conv2D(6, kernel_size=5, strides=1, padding='valid', activation='relu'))
         self.model.add(tf.keras.layers.BatchNormalization())
         self.model.add(tf.keras.layers.MaxPooling2D(pool_size=2, strides=2, padding='valid'))
-
         # 2 Conv
         self.model.add(tf.keras.layers.Conv2D(6, kernel_size=5, strides=1, padding='valid', activation='relu'))
         self.model.add(tf.keras.layers.BatchNormalization())

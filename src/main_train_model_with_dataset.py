@@ -6,10 +6,9 @@ import cv2
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
-from src.utils.processing_data import preprocess_data, get_class_output, display_dataset
 from model.CNN import CNN
-
-from src.ui.draw_digit_ui import DrawDigitUI
+from utils.processing_data import preprocess_data, get_class_output, display_dataset
+from ui.draw_digit_ui import DrawDigitUI
 
 if __name__ == '__main__':
     parameters_path = os.path.join(os.getcwd(), 'configuration/parameters.json')
@@ -28,6 +27,7 @@ if __name__ == '__main__':
     #display_dataset(x_data_loaded, y_data_loaded)
 
     x_train, x_val, y_train, y_val = train_test_split(x_data_loaded, y_data_loaded, test_size=0.2)
+    # preprocess
     x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val)
 
     # To see the entire dataset images after augmentation, uncomment this lines

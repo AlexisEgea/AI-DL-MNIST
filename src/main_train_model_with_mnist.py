@@ -5,9 +5,8 @@ import tensorflow as tf
 import cv2
 from matplotlib import pyplot as plt
 
-from src.utils.processing_data import preprocess_data, get_class_output, display_dataset
 from model.CNN import CNN
-
+from utils.processing_data import preprocess_data, get_class_output, display_dataset
 from src.ui.draw_digit_ui import DrawDigitUI
 
 if __name__ == '__main__':
@@ -25,7 +24,8 @@ if __name__ == '__main__':
     # To see the dataset images before augmentation, uncomment this lines
     #display_dataset(x_data_loaded, y_data_loaded)
 
-    x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val, reduction=True)
+    # preprocess
+    x_train, y_train, x_val, y_val = preprocess_data(x_train, y_train, x_val, y_val, augmentation=True, reduction=True)
 
     # To see the entire dataset images after augmentation, uncomment this lines
     #display_dataset(x_train, y_train)
