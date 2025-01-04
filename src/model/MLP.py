@@ -1,6 +1,6 @@
 import os
 import tensorflow as tf
-from src.model.model import Model
+from model.base_model import Model
 
 # TODO: Depreciated: See old commit to understand how to use this model
 class MLP(Model):
