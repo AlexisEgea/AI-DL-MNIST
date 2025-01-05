@@ -6,8 +6,6 @@ class CNN(Model):
     def __init__(self):
         super().__init__("CNN")
 
-        self.save_model_path = os.path.join(os.getcwd(), 'configuration/saved_model/cnn.keras')
-
     def init_model(self, class_output):
         self.class_output = class_output
 

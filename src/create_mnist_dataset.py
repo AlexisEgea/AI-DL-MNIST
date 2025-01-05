@@ -98,6 +98,9 @@ class CreateDatasetUI:
               np.save(os.path.join(self.path_dataset, "X", "x_data.npy"), self.x_data)
               self.y_label = np.array(self.y_label)
               np.save(os.path.join(self.path_dataset, "y", "y_label.npy"), self.y_label)
+
+              print("\nAll drawings are complete! Dataset successfully created.")
+
               exit()
             self.number_of_draw_counter = 0
             self.class_number = self.class_output.pop(0)
@@ -149,7 +152,24 @@ class CreateDatasetUI:
         self.root.mainloop()
 
 if __name__ == '__main__':
+    default_config = input("Do you want to use the default configuration? (Y/N): ").strip().lower()
 
-    ui = CreateDatasetUI(10, 10)
+    if default_config == 'y':
+        n_class = 10
+        number_of_draw = 10
+    else:
+        n_class = int(input("Enter the number of classes wanted to draw in this interval: [1,10]: "))
+        while n_class > 10 or n_class < 1:
+            print("The number of classes must be between 1 and 10. Please try again.")
+            n_class = int(input("Enter the number of classes wanted to draw in this interval: [1,10]: "))
+
+        number_of_draw = int(input("Enter the number of drawings per class: "))
+        while number_of_draw <= 0:
+            print("The number of drawings must be greater than 0. Please try again.")
+            number_of_draw = int(input("Enter the number of drawings per class: "))
+
+    print(f"Configuration: {n_class} classes, {number_of_draw} drawings per class.")
+
+    ui = CreateDatasetUI(n_class, number_of_draw)
     ui.build_ui()
     ui.run()
