@@ -2,14 +2,13 @@
 
 ## Description
 
-This project uses the technologies of Neural Networks especially Convolutional Neural Network (CNNs) 
-in order to go beyond basic training and prediction on standard datasets by enabling freehand number drawing and
-obtaining accurate predictions, along with the confidence level for each predicted digit (referred to as a class).
+This project uses neural network technologies, especially Convolutional Neural Networks (CNNs), to go beyond basic training and prediction on standard datasets
+by enabling freehand number drawing and obtaining accurate predictions for each predicted digit.
 
 The project consists of four executable components:
 1. An executable for creating a custom dataset.
-2. An executable for training and use the model on the custom dataset.
-3. An executable for training and use the model on the MNIST dataset.
+2. An executable for training and using the model on the custom dataset.
+3. An executable for training and using the model on the MNIST dataset.
 4. An executable for drawing numbers and using a saved model for prediction.
 
 ---
@@ -159,20 +158,22 @@ In a terminal, follow these steps:
 3. Run the project:
    ```sh
    chmod +x Draw-Predict.sh
-   ./launcher.sh
+   ./Draw-Predict.sh
    ```
 
 ---
 
 ### On Windows:
 
-1. Double-click on the `installation-requirements.sh` script:
+1. Download ZIP
+   
+2. Double-click on the `installation-requirements.sh` script:
    ```sh
    installation-requirements.sh
    ```
 3. Double-click on the `Draw-Predict.sh` script:
    ```sh
-   launcher.sh
+   Draw-Predict.sh
    ```
 
 Alternatively, you can use an IDE (e.g., PyCharm, VS Code) to create a `venv` environment manually and execute the relevant Python files.
