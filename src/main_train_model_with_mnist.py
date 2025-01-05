@@ -56,10 +56,8 @@ if __name__ == '__main__':
     ui.build_ui(model)
     ui.run()
 
-    # save model if it doesn't exist
-    model.save_if_model_doesnt_exist()
-    # or save the model even if it exists
-    # model.save_model()
+    # save model
+    model.save_model()
 
 
 
