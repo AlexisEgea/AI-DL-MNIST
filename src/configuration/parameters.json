@@ -1,11 +1,13 @@
 {
   "model": {
     "MLP": {
+      "saved_model": "mlp_0",
       "optimiser": "adam",
       "loss": "categorical_crossentropy",
       "epoch": 10
     },
     "CNN": {
+      "saved_model": "cnn_0",
       "optimiser": "SGD",
       "loss": "categorical_crossentropy",
       "epoch": 50
