@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -18,7 +19,8 @@ class Model(ABC):
         self.width = None
         self.class_output = None
 
-        self.save_model_path = ''
+        self.save_model_path = os.path.join(os.getcwd(), "configuration/saved_model")
+        self.saved_model_name = ''
 
         self.init_parameters()
 
@@ -42,6 +44,7 @@ class Model(ABC):
         parameters_path = os.path.join(os.getcwd(), 'configuration/parameters.json')
         with open(parameters_path, 'r') as file:
             data = json.load(file)
+        self.saved_model_name = f"{data['model'][self.name]['saved_model']}.keras"
         self.optimiser = data['model'][self.name]['optimiser']
         self.loss = data['model'][self.name]['loss']
         self.epoch = data['model'][self.name]['epoch']
@@ -50,20 +53,28 @@ class Model(ABC):
 
 
     def save_model(self):
-        self.model.save(self.save_model_path)
-        print('model saved')
+        saved_model = f"cnn_{self.get_number_model_to_save(self.save_model_path, self.name.lower())}.keras"
+        path_model = os.path.join(self.save_model_path, saved_model)
+
+        self.model.save(path_model)
+        print(f'model {self.saved_model_name} saved')
 
 
-    def save_if_model_doesnt_exist(self):
-        if not os.path.exists(self.save_model_path):
-            self.model.save(self.save_model_path)
-            print('model saved')
-        else:
-            print('model alredy saved')
+    def get_number_model_to_save(self, base_path, name):
+        files = [f for f in os.listdir(base_path) if os.path.isfile(os.path.join(base_path, f))]
+        numbers = []
+        for file in files:
+            match = re.search(rf"{name}_(\d+)", file)
+            if match:
+                numbers.append(int(match.group(1)))
+
+        if len(numbers) == 0:
+            return 0
+        return max(numbers) + 1
 
 
     def load_model(self):
-        self.model = tf.keras.models.load_model(self.save_model_path)
+        self.model = tf.keras.models.load_model(os.path.join(self.save_model_path, self.saved_model_name))
 
 
     def predict_best_class(self, result):
