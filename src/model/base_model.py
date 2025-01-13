@@ -51,6 +51,8 @@ class Model(ABC):
         self.height = data['image']['height']
         self.width = data['image']['width']
 
+    def get_model(self):
+        return self.model
 
     def save_model(self):
         saved_model = f"cnn_{self.get_number_model_to_save(self.save_model_path, self.name.lower())}.keras"
