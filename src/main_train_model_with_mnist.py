@@ -39,7 +39,7 @@ if __name__ == '__main__':
     history = model.train(x_train, y_train, x_val, y_val, model.optimiser, model.loss)
     model.display_result(history)
 
-    print(model.model.summary())
+    print(model.get_model().summary())
 
     # one prediction with data from validation dataset
     i = 12

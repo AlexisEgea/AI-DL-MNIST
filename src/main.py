@@ -5,7 +5,7 @@ if __name__ == '__main__':
     model = CNN()
 
     model.load_model()
-    print(model.model.summary())
+    print(model.get_model().summary())
 
     ui = DrawDigitUI()
     ui.build_ui(model)
